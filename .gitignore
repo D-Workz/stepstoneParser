@@ -1,0 +1,6 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/workspace.xml
+mongodb/
+package-lock.json
+data/
+stepstone/node_modules

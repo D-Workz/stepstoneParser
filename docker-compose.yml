@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+
+  api:
+    build:
+      context: ./stepstone
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8082:8081
+    volumes:
+      - ./data/upload:/var/upload
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:3.6
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - 127.0.0.1:27019:27017
+
+volumes:
+  mongodata:
+    driver: local
+
+
