@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OpenWhisk Image Manipulation</title>
+    <title>Stepstone Parser Frontend</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="javascripts/script.js"></script>
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
@@ -12,21 +12,15 @@
     <div id="container">
 
         <h2>Stepstone Parser</h2>
-        <div id="uploadBox">
-                <input type='file' accept="image/png,image/jpeg" id="fileInput" />
-                <div id="preview">
-                    <img src="" id="userimage-Preview" hidden>
-                </div><br>
-                <input class="btn btn-success" type="submit" value="Upload" id="uploadBtn">
-
+        <div id="parserBox">
+                <input class="btn btn-success" type="submit" value="StartParser" id="parseBtn">
         </div>
         <div id="error" hidden>
             <div id="errorText"></div>
         </div>
-        <div id="content" hidden>
-            <div id="userimage-input">
-
-
+        <div class="col-md-12" id="content">
+            <div  id="parser-output">
+                No parse result yet.
             </div>
         </div>
     </div>
