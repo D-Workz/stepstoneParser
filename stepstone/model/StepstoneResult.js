@@ -9,18 +9,20 @@ shortId.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
 let StepstoneResult = new mongoose.Schema(
     {
         UID: {type: String, unique: true},
+        job: {type: String},
         platform: {type: String},
-        totalResultCount: {type: Number},
-        releaseDate: [{type: Object}],
-        competences: [{type: Object}],
-        categories: [{type: Object}],
-        sectors: [{type: Object}],
-        geoRegion: [{type: Object}],
-        geoCity: [{type: Object}],
-        jobExperiences: [{type: Object}],
-        workingHours:[{type: Object}],
-        employmentType: [{type: Object}],
-        content: {type: Array},
+        totalCount: {type: Number},
+        releaseDate: {type: Object},
+        competences: {type: Object},
+        categories: {type: Object},
+        branch: {type: Object},
+        geoRegion: {type: Object},
+        geoCity: {type: Object},
+        workExperience: {type: Object},
+        workingHours:{type: Object},
+        employmentType: {type: Object},
+        jobDescription: {type: Object},
+        companies: {type: Object}
     },
 );
 
