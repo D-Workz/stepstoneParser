@@ -7,6 +7,39 @@ a {
   color: #00B7FF;
 }
 
+h5 {
+  display: grid;
+  width: 100%;
+  align-items: center;
+  text-align: left !important;
+  grid-template-columns: minmax(20px, 1fr) auto minmax(20px, 1fr);
+  grid-gap: 5px;
+}
+
+h5:before,
+h5:after {
+  content: '';
+  border-top: 2px solid;
+}
+
+.visIcon{
+  float: right;
+}
+
+.frameResult{
+  background-color: white;
+  border: 1px solid black;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding-bottom: 10px;
+}
+
+.attributeResults{
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 #parserBox{
   padding-top: 50px;
   padding-bottom: 50px;
@@ -14,13 +47,54 @@ a {
 
 #content{
   margin: auto;
-  webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
+}
+
+.attributeBox{
+  overflow: auto;
+  min-width: 300px;
+}
+
+.attributeBox td{
+  text-align: left;
+}
+
+.TFtable{
+  width:100%;
+  border-collapse:collapse;
+}
+.TFtable td{
+  /*padding:7px; */
+  border:#4e95f4 1px solid;
+}
+/* provide some minimal visual accomodation for IE8 and below */
+.TFtable tr{
+  background: #b8d1f3;
+}
+/*  Define the background color for all the ODD background rows  */
+.TFtable tr:nth-child(odd){
+  background: #b8d1f3;
+}
+/*  Define the background color for all the EVEN background rows  */
+.TFtable tr:nth-child(even){
+  background: #dae5f4;
 }
 
 
+.parserBoxContent{
+  min-height: 200px !important;
+  background-color: #e8e8e8;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
 
 #parser-output{
   width: 100%;
   padding: 5px;
+}
+
+.date-Header{
+  webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
 }

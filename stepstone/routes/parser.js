@@ -17,7 +17,7 @@ mongoose.Promise = Promise;
 const StepstoneParser = mongoose.model('StepstoneParser');
 const StepstoneResult = mongoose.model('StepstoneResult');
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/start', function(req, res, next) {
     let allJobSearches = [];
     allJobSearches.push(requestStepstoneData("de", 'data-scientist'));
     allJobSearches.push(requestStepstoneData("at", 'data-scientist'));
@@ -35,6 +35,37 @@ router.get('/', function(req, res, next) {
         .catch(err => {
             console.log(err);
         })
+});
+
+router.get('/get/:parserRunId', function (req, res, next) {
+    let id = req.params.parserRunId;
+    if(!id){
+        res.status(400).json({message:"please provide an id"})
+    }
+    StepstoneParser
+        .findById(id)
+        .populate('results')
+        .then( parseResult =>{
+            res.status(200).json({message:"ok", result:parseResult})
+        })
+        .catch(err =>{
+            res.status(400).json({message:"something went wrong"})
+        })
+
+});
+
+router.get('/info', function(req, res, next) {
+    StepstoneParser
+        .find({})
+        .then(allRuns => {
+            res.status(200).json({message:"ok", result:allRuns});
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(400).json({message:"something went wrong."});
+        })
+
+
 });
 
 module.exports = router;
