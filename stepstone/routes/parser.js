@@ -21,6 +21,8 @@ router.get('/start', function(req, res, next) {
     let allJobSearches = [];
     allJobSearches.push(requestStepstoneData("de", 'data-scientist'));
     allJobSearches.push(requestStepstoneData("at", 'data-scientist'));
+    allJobSearches.push(requestStepstoneData("at", 'business-analyst'));
+    allJobSearches.push(requestStepstoneData("de", 'business-analyst'));
     return Promise
         .all(allJobSearches)
         .then(result => {
