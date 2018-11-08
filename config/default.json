@@ -1,4 +1,4 @@
 {
   "DBUrl": "mongodb://localhost:27019/stepstone",
-  "port":"9000"
+  "port":"8082"
 }

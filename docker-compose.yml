@@ -6,23 +6,23 @@ services:
     build:
       context: ./stepstone
     restart: unless-stopped
-#    ports:
-#      - 8082:8081
+    ports:
+      - 127.0.0.1:8082:8081
     volumes:
       - ./data/upload:/var/upload
     depends_on:
       - mongodb
-    networks:
-      - web
-      - default
-    expose:
-    - "9000"
-    labels:
-    - "traefik.docker.network=web"
-    - "traefik.enable=true"
-    - "traefik.frontend.rule=Host:stepstone"
-    - "traefik.port=9000"
-    - "traefik.protocol=https"
+#    networks:
+#      - web
+#      - default
+#    expose:
+#    - "9000"
+#    labels:
+#    - "traefik.docker.network=web"
+#    - "traefik.enable=true"
+#    - "traefik.frontend.rule=Host:stepstone"
+#    - "traefik.port=9000"
+#    - "traefik.protocol=https"
 
   mongodb:
     image: mongo:3.6
@@ -36,6 +36,6 @@ volumes:
   mongodata:
     driver: local
 
-networks:
-  web:
-    external: true
+#networks:
+#  web:
+#    external: true
