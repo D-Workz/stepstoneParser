@@ -234,7 +234,7 @@ function formatDateForOutput(date) {
 }
 
 function con_getParserRunById(parserRunId, callback) {
-    url = "http://localhost:8082/parser/get/"+parserRunId;
+    url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
     $.ajax({
         url: url,
         type: "get",
