@@ -4,6 +4,7 @@ const config = require('config');
 const mongoose = require('mongoose');
 const request = require('request');
 const HTMLParser = require('node-html-parser');
+const cors = require('cors');
 
 mongoose.connect(config.DBUrl, {useNewUrlParser: true}, function (err) {
     if (err) {
@@ -39,7 +40,7 @@ router.get('/start', function(req, res, next) {
         })
 });
 
-router.get('/get/:parserRunId', function (req, res, next) {
+router.get('/get/:parserRunId', cors(), function (req, res, next) {
     let id = req.params.parserRunId;
     if(!id){
         res.status(400).json({message:"please provide an id"})

@@ -7,7 +7,7 @@ const config = require('config');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-
+const cors = require('cors');
 
 
 mongoose.connect(config.DBUrl, {useNewUrlParser: true}, function (err) {
@@ -43,6 +43,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(cors());
 
 
 
