@@ -92,9 +92,31 @@ h5:after {
   width: 100%;
   padding: 5px;
 }
+.modal-dialog {
+  width: 98% !important;
+  margin: 20px !important;
+  padding: 0 !important;
+}
+
+.modal-content {
+  height: auto !important;
+  min-height: 100% !important;
+  border-radius: 0 !important;
+}
+
 
 .date-Header{
   webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   margin-top: 20px;
+}
+
+.modal{
+  width: 100%;
+  min-height: 400px;
+}
+
+.modal canvas{
+  width: 600px;
+  height: auto;
 }

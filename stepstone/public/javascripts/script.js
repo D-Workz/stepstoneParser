@@ -1,7 +1,13 @@
 var url;
 var allParserRuns = [];
+let viewFiles = [
+    "modals.html"
+];
+let results = {};
+
 
 $(document).ready(function() {
+    process_insertHTMLViews();
     var $parseBtn = $("#parseBtn");
     $parseBtn.click(function () {
         $('#loader').css("display","block");
@@ -26,6 +32,75 @@ $(document).ready(function() {
     })
 });
 
+function showModal(id) {
+    let modal = $("#myModal");
+    let modalBody = modal.find('.modal-body');
+    let dataValues = results[id].data;
+    let dataLabels = results[id].label;
+    let sortedData = [];
+    for(let i=0;i<dataValues.length;i++){
+        sortedData.push([dataLabels[i],dataValues[i]])
+    }
+    sortedData.sort(function(a, b) {
+        return b[1] - a[1];
+    });
+    dataValues = [];
+    dataLabels = [];
+    for(let x=0;x<sortedData.length;x++){
+        dataLabels.push(sortedData[x][0]);
+        dataValues.push(sortedData[x][1]);
+    }
+    modalBody.html('');
+    modalBody.append('<canvas id="m-'+id+'"></canvas>')
+    let ctx = $("#m-"+id)[0].getContext('2d');
+
+    let dataset = {
+        data: dataValues
+    };
+    let data = {
+        labels: dataLabels,
+        datasets:[dataset]
+    };
+
+    new Chart(ctx, {
+        type: 'horizontalBar',
+        data: data,
+        options: {
+            legend: {
+                display: false
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, context) {
+                        return context.chart.data.datasets[0].data[context.dataIndex];
+                    }
+                }
+            }
+        }
+    });
+    modal.modal();
+}
+
+
+//inserts Views (HTML Files) to the contentContainer DIV of the index.html
+function process_insertHTMLViews() {
+    if (viewFiles.length > 0) {
+        var actualView = viewFiles.shift();
+        $.get("/views/" + actualView, function (data) {
+            $('#container').append(data);
+            process_insertHTMLViews();
+        });
+    }
+}
+
+
 function generateDateBoxes() {
     let code = "";
     for(let i=0;i<allParserRuns.length;i++){
@@ -42,9 +117,13 @@ function generateDateBoxes() {
     return code;
 }
 
-function generateResultBox(stepstoneResult) {
+function generateResultBox($element, stepstoneResult) {
     var code = "";
+    let attrId = 0;
+    let label = [];
+    let data = [];
     for(let i=0;i<stepstoneResult.results.length;i++){
+        attrId = 0;
         code = code.concat('<div class="col-md-5 frameResult">')
         code = code.concat('<h4 class="col-md-6">'+stepstoneResult.results[i].platform+'</h4>');
         code = code.concat('<h4 class="col-md-6">'+stepstoneResult.results[i].job+'</h4>');
@@ -52,6 +131,9 @@ function generateResultBox(stepstoneResult) {
         code = code.concat('<div class="col-md-12 attributeResults">')
         for(let attribute in stepstoneResult.results[i]){
             if(attribute !== "_id" && attribute !== "platform" && attribute !== "job" && attribute !=="totalCount" && attribute !== "UID" && attribute !=='__v'){
+                label = [];
+                data = [];
+                let canvasId = 'step-'+i+'-attr-'+attrId;
                 code = code.concat('<div class="attributeBox col-md-4">');
                 code = code.concat('<div >');
                 code = code.concat('<h5 class="col-md-12">'+stepstoneResult.results[i][attribute].attributeName+'</h5>');
@@ -60,6 +142,8 @@ function generateResultBox(stepstoneResult) {
                 code = code.concat('<table class="col-md-12 TFtable">');
                 let attributeFeatures = stepstoneResult.results[i][attribute].attributes
                 for(let x=0;x<attributeFeatures.length;x++){
+                    label.push(attributeFeatures[x].name);
+                    data.push(attributeFeatures[x].count);
                     code = code.concat('<tr>');
                     code = code.concat('<td class="col-md-6">'+ attributeFeatures[x].name+'</td>');
                     code = code.concat('<td class="col-md-6">'+ attributeFeatures[x].count+'</td>');
@@ -67,22 +151,61 @@ function generateResultBox(stepstoneResult) {
                 }
                 code = code.concat('</table>');
                 code = code.concat('</div>');
+                code = code.concat('<div onclick="showModal(\`'+canvasId+'\`)"><canvas id="'+canvasId+'"></canvas></div>');
                 code = code.concat('</div>');
+                attrId++;
+                results[canvasId] = {
+                    label:label,
+                    data:data
+                };
+
             }
         }
         code = code.concat('</div>');
         code = code.concat('</div>');
     }
-    return code;
+    $element.html('');
+    $element.append(code);
+
+    for(let attr in results){
+
+        var ctx = $("#"+attr)[0].getContext('2d');
+
+        let dataset = {
+            data: results[attr].data
+        };
+        let data = {
+            labels: results[attr].label,
+            datasets:[dataset]
+        };
+
+        new Chart(ctx, {
+            type: 'horizontalBar',
+            data: data,
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+
 }
 
 function getParserRunAndAppendToElement($element, parseId) {
     let $loader = $('#loader-'+parseId);
     con_getParserRunById(parseId,function (parserRun) {
         $loader.css("display","none");
-        let results = generateResultBox(parserRun.result);
-        $element.html('');
-        $element.append(results);
+        generateResultBox($element, parserRun.result);
+
     })
 }
 
