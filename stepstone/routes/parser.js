@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const request = require('request');
 const HTMLParser = require('node-html-parser');
 
-mongoose.connect(config.get("DBUrl"), function (err) {
+mongoose.connect(config.DBUrl, {useNewUrlParser: true}, function (err) {
     if (err) {
         console.error(err);
         process.exit(1);

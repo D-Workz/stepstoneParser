@@ -10,7 +10,7 @@ const fs = require('fs');
 
 
 
-mongoose.connect(config.get("DBUrl"), function (err) {
+mongoose.connect(config.DBUrl, {useNewUrlParser: true}, function (err) {
     if (err) {
         console.error(err);
         process.exit(1);
@@ -34,6 +34,8 @@ const parserRouter = require('./routes/parser');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+// application.use("/public", express.static(path.join(__dirname, 'public')));
+
 
 app.use(logger('dev'));
 app.use(express.json());
