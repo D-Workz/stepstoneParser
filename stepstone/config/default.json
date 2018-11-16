@@ -1,5 +1,5 @@
 {
-  "DBUrl": "mongodb://localhost:27017/stepstone",
-//  "DBUrl": "mongodb://mongodb:27017/stepstone",
+//  "DBUrl": "mongodb://localhost:27017/stepstone",
+  "DBUrl": "mongodb://mongodb:27017/stepstone",
   "port":"8082"
 }
