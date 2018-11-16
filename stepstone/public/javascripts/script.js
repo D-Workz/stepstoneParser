@@ -32,9 +32,12 @@ $(document).ready(function() {
     })
 });
 
-function showModal(id) {
+function showModal(id, name) {
     let modal = $("#myModal");
     let modalBody = modal.find('.modal-body');
+    let modalHeader = modal.find('.modal-header');
+    modalHeader.html('');
+    modalHeader.html(name);
     let dataValues = results[id].data;
     let dataLabels = results[id].label;
     let sortedData = [];
@@ -151,7 +154,7 @@ function generateResultBox($element, stepstoneResult) {
                 }
                 code = code.concat('</table>');
                 code = code.concat('</div>');
-                code = code.concat('<div onclick="showModal(\`'+canvasId+'\`)"><canvas id="'+canvasId+'"></canvas></div>');
+                code = code.concat('<div onclick="showModal(\''+canvasId+'\',\''+ stepstoneResult.results[i][attribute].attributeName +'\')"><canvas id="'+canvasId+'"></canvas></div>');
                 code = code.concat('</div>');
                 attrId++;
                 results[canvasId] = {
