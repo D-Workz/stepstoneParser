@@ -387,8 +387,8 @@ function formatDateForOutput(date) {
 }
 
 function con_getParserRunById(parserRunId, callback) {
-    // url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
-    url = "http://localhost:8082/parser/get/"+parserRunId;
+    url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
+    // url = "http://localhost:8082/parser/get/"+parserRunId;
     $.ajax({
         url: url,
         type: "get",
@@ -399,8 +399,8 @@ function con_getParserRunById(parserRunId, callback) {
 }
 
 function con_getParserInfo(callback) {
-    // url = "http://92.42.47.172:8082/parser/info";
-    url = "http://localhost:8082/parser/info";
+    url = "http://92.42.47.172:8082/parser/info";
+    // url = "http://localhost:8082/parser/info";
     $.ajax({
         url: url,
         type: "get",
@@ -410,8 +410,8 @@ function con_getParserInfo(callback) {
     });
 }
 function con_invokeParser(callback) {
-    // url = "http://92.42.47.172:8082/parser/start";
-    url = "http://localhost:8082/parser/start";
+    url = "http://92.42.47.172:8082/parser/start";
+    // url = "http://localhost:8082/parser/start";
     $.ajax({
         url: url,
         type: "get",
