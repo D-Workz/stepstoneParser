@@ -4,7 +4,7 @@ let viewFiles = [
     "modals.html"
 ];
 let results = {};
-
+let mapData = [];
 
 $(document).ready(function() {
     process_insertHTMLViews();
@@ -131,7 +131,14 @@ function generateResultBox($element, stepstoneResult) {
         code = code.concat('<h4 class="col-md-6">'+stepstoneResult.results[i].platform+'</h4>');
         code = code.concat('<h4 class="col-md-6">'+stepstoneResult.results[i].job+'</h4>');
         code = code.concat('<div class="col-md-12">Number of Results: <strong>'+stepstoneResult.results[i].totalCount+'</strong></div>');
-        code = code.concat('<div class="col-md-12 attributeResults">')
+
+        code = code.concat('<div class="col-md-12">');
+        let canvasIdMap = 'step-'+ stepstoneResult.results[i].platform +'-map-'+stepstoneResult.results[i].job;
+        code = code.concat('<div onclick="showModal(\''+canvasIdMap+'\',\'map\')"><div id="'+canvasIdMap+'"></div></div>');
+
+        code = code.concat('</div>')
+
+        code = code.concat('<div class="col-md-12 attributeResults">');
         for(let attribute in stepstoneResult.results[i]){
             if(attribute !== "_id" && attribute !== "platform" && attribute !== "job" && attribute !=="totalCount" && attribute !== "UID" && attribute !=='__v'){
                 label = [];
@@ -170,6 +177,58 @@ function generateResultBox($element, stepstoneResult) {
     $element.html('');
     $element.append(code);
 
+    for(let x=0;x<stepstoneResult.results.length;x++){
+        if(stepstoneResult.results[x].platform==="stepstone.at"){
+            let canvasIdMap = 'step-'+ stepstoneResult.results[x].platform +'-map-'+stepstoneResult.results[x].job;
+            let geoRegion = stepstoneResult.results[x].geoRegion;
+            let data = generateMapDataForAustria(geoRegion);
+            let max = data.max;
+            data = data.data;
+            Highcharts.mapChart(canvasIdMap, {
+                chart: {
+                    map: 'countries/at/at-all'
+                },
+
+                title: {
+                    text: stepstoneResult.results[x].job + ' Offer Distribution within Austria'
+                },
+
+                subtitle: {
+                    text: 'Source map: <a href="http://code.highcharts.com/mapdata/countries/at/at-all.js">Austria</a>'
+                },
+
+                mapNavigation: {
+                    enabled: true,
+                    buttonOptions: {
+                        verticalAlign: 'bottom'
+                    }
+                },
+
+                colorAxis: {
+                    min: 0,
+                    max: max
+                },
+
+                series: [{
+                    data: data,
+                    name: 'Stepstone Job Offers',
+                    states: {
+                        hover: {
+                            color: '#BADA55'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}'
+                    }
+                }]
+            });
+        }
+
+
+    }
+
+
     for(let attr in results){
 
         var ctx = $("#"+attr)[0].getContext('2d');
@@ -201,6 +260,97 @@ function generateResultBox($element, stepstoneResult) {
     }
 
 
+}
+
+function generateMapDataForAustria(geoRegion) {
+    let dataArr = [];
+    let max = 0;
+    let retObj = {};
+    for(let i=0;i<geoRegion.attributes.length;i++){
+        let region = geoRegion.attributes[i].name;
+        let countAsInt = parseInt(geoRegion.attributes[i].count);
+        switch (region.trim()) {
+            case "Wien":
+                dataArr.push([
+                    'at-wi',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Vorarlberg":
+                dataArr.push([
+                    'at-vo',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Burgenland":
+                dataArr.push([
+                    'at-bu',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Steiermark":
+                dataArr.push([
+                    'at-st',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Kärnten":
+                dataArr.push([
+                    'at-ka',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Ostösterreich":
+                dataArr.push([
+                    'at-oo',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Salzburg":
+                dataArr.push([
+                    'at-sz',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Tirol":
+                dataArr.push([
+                    'at-tr',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+            case "Niederösterreich":
+                dataArr.push([
+                    'at-no',
+                    countAsInt
+                ]);
+                if(max<countAsInt) max = countAsInt;
+                break;
+        }
+    }
+
+    var data = [
+        ['at-wi', 0],
+        ['at-vo', 1],
+        ['at-bu', 2],
+        ['at-st', 3],
+        ['at-ka', 4],
+        ['at-oo', 5],
+        ['at-sz', 6],
+        ['at-tr', 7],
+        ['at-no', 8]
+    ];
+
+    retObj.data = dataArr;
+    retObj.max = max;
+    return retObj;
 }
 
 function getParserRunAndAppendToElement($element, parseId) {
@@ -237,7 +387,8 @@ function formatDateForOutput(date) {
 }
 
 function con_getParserRunById(parserRunId, callback) {
-    url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
+    // url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
+    url = "http://localhost:8082/parser/get/"+parserRunId;
     $.ajax({
         url: url,
         type: "get",
@@ -248,7 +399,8 @@ function con_getParserRunById(parserRunId, callback) {
 }
 
 function con_getParserInfo(callback) {
-    url = "http://92.42.47.172:8082/parser/info";
+    // url = "http://92.42.47.172:8082/parser/info";
+    url = "http://localhost:8082/parser/info";
     $.ajax({
         url: url,
         type: "get",
@@ -258,7 +410,8 @@ function con_getParserInfo(callback) {
     });
 }
 function con_invokeParser(callback) {
-    url = "http://92.42.47.172:8082/parser/start";
+    // url = "http://92.42.47.172:8082/parser/start";
+    url = "http://localhost:8082/parser/start";
     $.ajax({
         url: url,
         type: "get",

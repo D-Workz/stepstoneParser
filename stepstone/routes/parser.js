@@ -96,6 +96,7 @@ function saveParseResultToDB(parseResult){
             result.totalCount = currentResult.totalCount;
             result.workExperience = currentResult.workExperience;
             result.workingHours = currentResult.workingHours;
+            if(currentResult.companies) result.companies = currentResult.companies;
             result
                 .save()
                 .then( stepResult => {
@@ -139,10 +140,12 @@ function requestStepstoneData(platform, job) {
 
 
                 let attributes = getAttributes(body);
+                let companies = getCompanies(body);
                 let domAttributes = [];
                 for(let i=0;i<attributes.length;i++){
                     domAttributes.push(HTMLParser.parse(attributes[i]));
                 }
+                domAttributes.push(HTMLParser.parse(companies[0]));
                 const root = HTMLParser.parse(body);
                 let mappingResult = mapParsingResultToObject(root, platform, job, domAttributes);
                 resolve(mappingResult);
@@ -151,6 +154,12 @@ function requestStepstoneData(platform, job) {
             }
         });
     });
+}
+
+function getCompanies(body) {
+    let regexAttributes = /<span class="panel-facets-heading open js-open">.(Companies|Firmen)(.*)<!-- Careers content -->/sg;
+    let match = body.match(regexAttributes)
+    return match;
 }
 
 function getAttributes(body) {
