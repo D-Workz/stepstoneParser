@@ -38,7 +38,7 @@ $(document).ready(function() {
 function appendResultHistoryChart() {
     let $resHistory = $('#result-history');
     let code = "";
-    code = code.concat('<div class="col-md-6" id="history-dataScientist">');
+    code = code.concat('<div class="col-md-12" id="history-dataScientist">');
     // code = code.concat('<div class="col-md-6" >');
     // code = code.concat('<canvas id="history-dataScientist-at"></canvas>');
     // code = code.concat('</div>');
@@ -46,7 +46,7 @@ function appendResultHistoryChart() {
     code = code.concat('<canvas id="history-dataScientist-de"></canvas>');
     // code = code.concat('</div>');
     code = code.concat('</div>');
-    code = code.concat('<div class="col-md-6" id="history-businessAnalyst">');
+    code = code.concat('<div class="col-md-12" id="history-businessAnalyst">');
     // code = code.concat('<div class="col-md-6" >');
     // code = code.concat('<canvas id="history-businessAnalyst-at"></canvas>');
     // code = code.concat('</div>');
