@@ -83,7 +83,7 @@ function appendResultHistoryChart() {
     };
     let dataLabels = [];
     let addedDate = {dataScien:false,buisAnal: false};
-    for(let i=0;i<allParserRuns.length;i++){
+    for(let i=allParserRuns.length-1;i>=0;i--){
         dataLabels.push(allParserRuns[i].createdAt);
         addedDate.dataScien = false;
         addedDate.buisAnal = false;
