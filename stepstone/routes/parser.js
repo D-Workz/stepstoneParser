@@ -60,7 +60,12 @@ router.get('/get/:parserRunId', cors(), function (req, res, next) {
 router.get('/info', function(req, res, next) {
     StepstoneParser
         .find({})
+        .populate({
+            path: 'results',
+            select: 'totalCount platform job'
+        })
         .then(allRuns => {
+
             res.status(200).json({message:"ok", result:allRuns});
         })
         .catch(err => {

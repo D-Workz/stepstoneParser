@@ -25,12 +25,144 @@ $(document).ready(function() {
         for(var i=response.result.length-1;i>=0;i--){
             allParserRuns.push(response.result[i]);
         }
+
+        appendResultHistoryChart();
         let $content = $('#content');
         $content.html('');
         $content.append('<h4>Runs:</h4>');
         $content.append(generateDateBoxes());
     })
 });
+
+function appendResultHistoryChart() {
+    let $resHistory = $('#result-history');
+    let code = "";
+    code = code.concat('<div class="col-md-6" id="history-dataScientist">');
+    // code = code.concat('<div class="col-md-6" >');
+    // code = code.concat('<canvas id="history-dataScientist-at"></canvas>');
+    // code = code.concat('</div>');
+    code = code.concat('<h4>Search result history for data-scientist</h4>');
+    code = code.concat('<canvas id="history-dataScientist-de"></canvas>');
+    // code = code.concat('</div>');
+    code = code.concat('</div>');
+    code = code.concat('<div class="col-md-6" id="history-businessAnalyst">');
+    // code = code.concat('<div class="col-md-6" >');
+    // code = code.concat('<canvas id="history-businessAnalyst-at"></canvas>');
+    // code = code.concat('</div>');
+    // code = code.concat('<div class="col-md-6" >');
+    code = code.concat('<h4>Search result history for business-analyst</h4>');
+    code = code.concat('<canvas id="history-businessAnalyst-de"></canvas>');
+    // code = code.concat('</div>');
+    code = code.concat('</div>');
+    $resHistory.append(code);
+
+    let historyData = {
+        buisAnal:{
+            labels:[],
+            at:{
+                label:'stepstone.at',
+                data:[]
+            },
+            de:{
+                label:'stepstone.de',
+                data:[]
+            },
+        },
+        dataScien:{
+            labels:[],
+            at:{
+                label:'stepstone.at',
+                data:[]
+            },
+            de:{
+                label:'stepstone.de',
+                data:[]
+            }
+        }
+    };
+    let dataLabels = [];
+    let addedDate = {dataScien:false,buisAnal: false};
+    for(let i=0;i<allParserRuns.length;i++){
+        dataLabels.push(allParserRuns[i].createdAt);
+        addedDate.dataScien = false;
+        addedDate.buisAnal = false;
+        for(let x=0;x<allParserRuns[i].results.length;x++){
+            if(allParserRuns[i].results[x].job === 'data-scientist'){
+                if(!addedDate.dataScien){
+                    historyData.dataScien.labels.push(
+                        allParserRuns[i].createdAt,
+                    );
+                    addedDate.dataScien = true;
+                }
+                if(allParserRuns[i].results[x].platform === 'stepstone.at'){
+                    historyData.dataScien.at.data.push(
+                        allParserRuns[i].results[x].totalCount
+                    );
+                }else{
+                    historyData.dataScien.de.data.push(
+                        allParserRuns[i].results[x].totalCount
+                    );
+                }
+            }else{
+                if(!addedDate.buisAnal){
+                    historyData.buisAnal.labels.push(
+                        allParserRuns[i].createdAt,
+                    );
+                    addedDate.buisAnal = true;
+                }
+
+                if(allParserRuns[i].results[x].platform === 'stepstone.at'){
+                    historyData.buisAnal.at.data.push(
+                        allParserRuns[i].results[x].totalCount
+                    );
+                }else{
+                    historyData.buisAnal.de.data.push(
+                        allParserRuns[i].results[x].totalCount
+                    );
+                }
+            }
+        }
+    }
+    // let ctxHisBuisAnalAt = $("#history-businessAnalyst-at")[0].getContext('2d');
+    let ctxHisBuisAnalDe = $("#history-businessAnalyst-de")[0].getContext('2d');
+    // let ctxHisDataScienAt = $("#history-dataScientist-at")[0].getContext('2d');
+    let ctxHisDataScienDe = $("#history-dataScientist-de")[0].getContext('2d');
+    // generateNewHistoryChart(ctxHisBuisAnalAt,historyData.buisAnalAt);
+    generateNewHistoryChart(ctxHisBuisAnalDe,historyData.buisAnal);
+    // generateNewHistoryChart(ctxHisDataScienAt,historyData.dataScienAt);
+    generateNewHistoryChart(ctxHisDataScienDe,historyData.dataScien);
+}
+
+function generateNewHistoryChart(chart, jobData) {
+    new Chart(chart, {
+        type: 'line',
+        data: {
+            labels: jobData.labels,
+            datasets:[{
+                label:jobData.de.label,
+                fill:false,
+                borderColor: 'rgb(73, 144, 226)',
+                data:jobData.de.data,
+                // pointBackgroundColor:'rgb(14, 38, 117)',
+            },{
+                label:jobData.at.label,
+                fill:false,
+                borderColor: 'rgb(85, 255, 127)',
+                data:jobData.at.data,
+                // pointBackgroundColor:'rgb(14, 38, 117)',
+            }]
+        },
+        options: {
+            // scales: {
+            //     xAxes: [{
+            //         type: 'linear',
+            //         position: 'bottom'
+            //     }]
+            // }
+        }
+    });
+}
+
 
 function showModal(id, name) {
     let modal = $("#myModal");
@@ -387,8 +519,8 @@ function formatDateForOutput(date) {
 }
 
 function con_getParserRunById(parserRunId, callback) {
-    url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
-    // url = "http://localhost:8082/parser/get/"+parserRunId;
+    // url = "http://92.42.47.172:8082/parser/get/"+parserRunId;
+    url = "http://localhost:8082/parser/get/"+parserRunId;
     $.ajax({
         url: url,
         type: "get",
@@ -399,8 +531,8 @@ function con_getParserRunById(parserRunId, callback) {
 }
 
 function con_getParserInfo(callback) {
-    url = "http://92.42.47.172:8082/parser/info";
-    // url = "http://localhost:8082/parser/info";
+    // url = "http://92.42.47.172:8082/parser/info";
+    url = "http://localhost:8082/parser/info";
     $.ajax({
         url: url,
         type: "get",
@@ -410,8 +542,8 @@ function con_getParserInfo(callback) {
     });
 }
 function con_invokeParser(callback) {
-    url = "http://92.42.47.172:8082/parser/start";
-    // url = "http://localhost:8082/parser/start";
+    // url = "http://92.42.47.172:8082/parser/start";
+    url = "http://localhost:8082/parser/start";
     $.ajax({
         url: url,
         type: "get",
