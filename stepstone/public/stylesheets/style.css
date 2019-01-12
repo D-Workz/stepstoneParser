@@ -80,6 +80,27 @@ h5:after {
   background: #dae5f4;
 }
 
+.container{
+  background-color: #e8e8e8;
+  padding: 20px;
+  webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.canvas-history{
+  background-color: white;
+  border: 1px solid black;
+  padding: 20px;
+
+}
+
+.date-header:hover{
+  cursor: pointer;
+  webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
+}
+
 
 .parserBoxContent{
   min-height: 200px !important;

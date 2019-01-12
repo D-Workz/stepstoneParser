@@ -57,6 +57,115 @@ router.get('/get/:parserRunId', cors(), function (req, res, next) {
 
 });
 
+function checkIfDateParsed(date, dates){
+    let dateParsed = false;
+    for(let i=0; i<dates.length; i++){
+        if(dates[i]===date){
+            dateParsed = true;
+            break;
+        }
+    }
+    return dateParsed;
+}
+
+function getParserDay(date){
+    let parserDay = new Date(date);
+    let day = parserDay.getDate();
+    let month = parserDay.getMonth()+1;
+    let year = parserDay.getFullYear();
+    parserDay = day+'.'+month+'.'+year;
+    return parserDay;
+}
+
+router.get('/attribute/:attribute/job/:job', cors(), function (req, res, next) {
+    let attribute = req.params.attribute;
+    let job = req.params.job;
+    let resultObj = {
+        job: job,
+        attribute:attribute,
+        scores:{
+            stepstoneAt:{
+
+            },
+            stepstoneDe:{
+
+            }
+        }
+    };
+    let dates = [];
+    let promises = [];
+    return StepstoneParser
+        .find()
+        .then(parserResults => {
+            for(let i=0; i<parserResults.length;i++){
+                let parserDay = getParserDay(parserResults[i].createdAt);
+                if(!checkIfDateParsed(parserDay, dates)){
+                    let results = parserResults[i].results;
+                    for(let x=0;x<results.length;x++){
+                        let onePromise = new Promise(function (resolve, reject) {
+                            StepstoneResult
+                                .findById(results[x])
+                                .then(stepResult => {
+                                    resolve(stepResult);
+                                })
+                                .catch(err =>{
+                                    console.log('Couldnt get result: '+results[x]);
+                                    reject(err);
+                                })
+                        });
+                        promises.push(onePromise);
+                    }
+                    dates.push(parserDay);
+                }
+            }
+            return Promise
+                .all(promises)
+                .then( results => {
+                    for(let q=0;q<results.length;q++){
+                        let stepResult = results[q];
+                        if(stepResult.job === job){
+                            let jobAttribute = stepResult[attribute];
+                            if(jobAttribute){
+                                for(let y=0; y<jobAttribute.attributes.length; y++){
+                                    let attributeName = jobAttribute.attributes[y].name;
+                                    if(stepResult.platform === 'stepstone.de'){
+                                        if(resultObj.scores.stepstoneDe[attributeName]){
+                                            resultObj.scores.stepstoneDe[attributeName].push(y);
+                                        }else{
+                                            resultObj.scores.stepstoneDe[attributeName] = [y]
+                                        }
+                                    }else{
+                                        if(resultObj.scores.stepstoneAt[attributeName]){
+                                            resultObj.scores.stepstoneAt[attributeName].push(y);
+                                        }else{
+                                            resultObj.scores.stepstoneAt[attributeName] = [y]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    res.status(200).json({message:"ok", result:resultObj})
+                })
+                .catch(err => {
+
+                })
+        })
+        .catch(err =>{
+            res.status(400).json({message:"something went wrong"});
+        })
+});
+
+
+
+
+
+
+
+
+
+
+
 router.get('/info', function(req, res, next) {
     StepstoneParser
         .find({})

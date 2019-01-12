@@ -5,7 +5,7 @@ let viewFiles = [
 ];
 let results = {};
 let mapData = [];
-let local = false;
+let local = true;
 
 $(document).ready(function() {
     process_insertHTMLViews();
@@ -22,6 +22,10 @@ $(document).ready(function() {
         })
     });
 
+    con_getAttributeDistributionForJob('competences', 'business-analyst' ,function (response) {
+       console.log(response);
+    });
+
     con_getParserInfo(function (response) {
         for(var i=response.result.length-1;i>=0;i--){
             allParserRuns.push(response.result[i]);
@@ -35,25 +39,45 @@ $(document).ready(function() {
     })
 });
 
+
+function toggleContainer(container) {
+    let $element = $('#'+container);
+    let visibility_icon = $('#visibility_icon_history');
+    if ($element.css('display') === "none") {
+        $element.slideDown(250);
+        visibility_icon.html('visibility_off');
+    }else{
+        $element.slideUp(250);
+        visibility_icon.html('visibility');
+    }
+}
+
+
 function appendResultHistoryChart() {
     let $resHistory = $('#result-history');
     let code = "";
-    code = code.concat('<div class="col-md-12" id="history-dataScientist">');
+    code = code.concat('<div style="color: #337ab7" onclick="toggleContainer(\'history-container\')" class="date-Header text-center" id="history-header">');
+    code = code.concat('Show parser history');
+    code = code.concat('<i class="visIcon material-icons my-fab-icon iconSmall" id="visibility_icon_history">visibility_on</i>');
+    code = code.concat('</div>');
+    code = code.concat('<div id="history-container" class="container col-md-12" hidden>');
+    code = code.concat('<div class="" id="history-dataScientist">');
     // code = code.concat('<div class="col-md-6" >');
     // code = code.concat('<canvas id="history-dataScientist-at"></canvas>');
     // code = code.concat('</div>');
     code = code.concat('<h4>Search result history for data-scientist</h4>');
-    code = code.concat('<canvas id="history-dataScientist-de"></canvas>');
+    code = code.concat('<canvas class="canvas-history" id="history-dataScientist-de"></canvas>');
     // code = code.concat('</div>');
     code = code.concat('</div>');
-    code = code.concat('<div class="col-md-12" id="history-businessAnalyst">');
+    code = code.concat('<div class="" id="history-businessAnalyst">');
     // code = code.concat('<div class="col-md-6" >');
     // code = code.concat('<canvas id="history-businessAnalyst-at"></canvas>');
     // code = code.concat('</div>');
     // code = code.concat('<div class="col-md-6" >');
     code = code.concat('<h4>Search result history for business-analyst</h4>');
-    code = code.concat('<canvas id="history-businessAnalyst-de"></canvas>');
+    code = code.concat('<canvas class="canvas-history"  id="history-businessAnalyst-de"></canvas>');
     // code = code.concat('</div>');
+    code = code.concat('</div>');
     code = code.concat('</div>');
     $resHistory.append(code);
 
@@ -556,6 +580,21 @@ function con_invokeParser(callback) {
         url = "http://localhost:8082/parser/start";
     }else {
         url = "http://92.42.47.172:8082/parser/start";
+    }
+    $.ajax({
+        url: url,
+        type: "get",
+        success: function (data){
+            callback(data);
+        }
+    });
+}
+
+function con_getAttributeDistributionForJob(attribute, job, callback) {
+    if(local){
+        url = "http://localhost:8082/parser/attribute/"+attribute+'/job/'+job;
+    }else {
+        url = "http://92.42.47.172:8082/parser/attribute/"+attribute+/job/+job;
     }
     $.ajax({
         url: url,
