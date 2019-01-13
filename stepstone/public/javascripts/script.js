@@ -5,7 +5,7 @@ let viewFiles = [
 ];
 let results = {};
 let mapData = [];
-let local = true;
+let local = false;
 
 $(document).ready(function() {
     process_insertHTMLViews();
@@ -22,15 +22,13 @@ $(document).ready(function() {
         })
     });
 
-    con_getAttributeDistributionForJob('competences', 'business-analyst' ,function (response) {
-       console.log(response);
-    });
+
 
     con_getParserInfo(function (response) {
         for(var i=response.result.length-1;i>=0;i--){
             allParserRuns.push(response.result[i]);
         }
-
+        appendAttributeAnalysis();
         appendResultHistoryChart();
         let $content = $('#content');
         $content.html('');
@@ -40,9 +38,332 @@ $(document).ready(function() {
 });
 
 
+let attributes = {
+    type:'attributes',
+    content:{
+        competences: 'Kompetenzen',
+        categories: 'Berufsfeld',
+        branch: 'Branche',
+        geoRegion: 'Region',
+        geoCity: 'Städte',
+        workExperience: 'Berufserfahrung',
+        workingHours:'Arbeitszeit',
+        employmentType: 'Anstellungsart',
+        jobDescription: 'Arbeitsbeschreibung',
+        companies: 'Unternehmen'
+    }
+};
+
+let jobPositions = {
+    'type':'jobpositions',
+    content:{
+        'business-analyst':'Business Analyst',
+        'data-scientist':'Data Scientist'
+    }
+};
+
+function appendAttributeAnalysis() {
+    let $element = $('#attribute-analysis');
+    let code = "";
+    code = code.concat('<div style="color: #337ab7" onclick="toggleContainer(\'analysis-container\')" class="date-Header text-center" id="analysis-header">');
+    code = code.concat('Show attribute analysis');
+    code = code.concat('<i class="visIcon material-icons my-fab-icon iconSmall" id="visibility_icon_analysis">visibility_on</i>');
+    code = code.concat('</div>');
+    code = code.concat('<div id="analysis-container" class="container col-md-12" hidden>');
+    code = code.concat('<div>Filters</div>');
+    code = code.concat('<div class="analysis-options col-md-12">');
+    code = code.concat(generateDropdownInput(jobPositions));
+    code = code.concat(generateDropdownInput(attributes));
+    code = code.concat('<button class="md-col-2 btn btn-success" onclick="requestStatistics()">Request statistics</button>');
+    code = code.concat('</div>');
+    code = code.concat('<div>Results</div>');
+    code = code.concat('<div id="analys-res" class="analysis-result col-md-12">');
+    code = code.concat('</div>');
+    code = code.concat('</div>');
+    $element.append(code);
+}
+
+function generateTableData(attributeDistribution) {
+    let tableData = [];
+    for(let key in attributeDistribution){
+        let sum = 0;
+        for(let i=0;i<attributeDistribution[key].length;i++){
+            sum = sum + attributeDistribution[key][i];
+        }
+        tableData.push({
+            name:key,
+            days:attributeDistribution[key].length,
+            allRankings:attributeDistribution[key],
+            averageRanking: (sum / attributeDistribution[key].length).toFixed(2)
+        })
+    }
+    tableData.sort(compare);
+    let rank = 1;
+    let currentAvgRank;
+    for(let q=0;q<tableData.length;q++){
+        if(!currentAvgRank){
+            currentAvgRank = tableData[q].averageRanking;
+            tableData[q].rank = rank;
+        }else {
+            if(currentAvgRank < tableData[q].averageRanking){
+                rank++;
+                currentAvgRank = tableData[q].averageRanking;
+            }
+            tableData[q].rank = rank;
+        }
+    }
+    let rankedData = [];
+    let currentRank;
+    let position = 0;
+    for(let k=0;k<tableData.length;k++){
+        if(!currentRank){
+            currentRank = tableData[k].rank;
+            rankedData[position] = [tableData[k]];
+        }else{
+            if(currentRank === tableData[k].rank){
+                rankedData[position].push(tableData[k])
+            }else{
+                position++;
+                rankedData[position] = [tableData[k]];
+                currentRank = tableData[k].rank
+            }
+        }
+    }
+    return rankedData;
+}
+
+function generateStatistcsResultCode(response) {
+    let $resultBox = $('#analys-res');
+    $resultBox.html('');
+    let code = "";
+    let tabData = {};
+    code = code.concat('<h4 style="  float: left; margin-left: 10px">'+response.job+'</h4>');
+    code = code.concat('<h4 style="  float: left; margin-left: 10px">'+response.attribute+'</h4>');
+    code = code.concat('<div style="clear: both"></div>')
+    for(let key in response.scores){
+        code = code.concat('<div class="res col-md-12">');
+        code = code.concat('<h5>'+key+'</h5>');
+        let tableData = generateTableData(response.scores[key]);
+        tabData[key] = tableData;
+        code = code.concat(generateCodeForStatisticsTable(tableData));
+        code = code.concat(generateCodeForStatisticsChart(tableData, key));
+        code = code.concat('</div>');
+    }
+    $resultBox.append(code);
+    appendStatisticCharts(tabData);
+}
+
+function appendStatisticCharts(tableData) {
+
+    let dataLabels = [], dataValues = [];
+    let dataset = {};
+    for(let key in tableData){
+        let ctx = $("#attribute-chart-"+key)[0].getContext('2d');
+        for(let i=0; i<tableData[key].length;i++){
+            dataLabels.push('Rank '+ (parseInt(i)+1));
+            let currentRank = tableData[key][i];
+            for(let q=0;q<currentRank.length;q++){
+                dataset = {
+                    label: currentRank[q].name,
+                    data: currentRank[q].days
+                };
+                dataValues.push(dataset);
+            }
+        }
+        let data = {
+            labels: dataLabels,
+            datasets: dataValues
+        };
+        generateStatisticChart(ctx, data);
+    }
+
+
+}
+
+function generateStatisticChart(chart, data) {
+    // new Chart(chart, {
+    //     type: 'horizontalBar',
+    //     data: data,
+    //     options: {
+    //         legend: {
+    //             display: false
+    //         },
+    //         scales: {
+    //             yAxes: [{
+    //                 ticks: {
+    //                     beginAtZero:true
+    //                 }
+    //             }]
+    //         },
+    //         plugins: {
+    //             datalabels: {
+    //                 formatter: function (value, context) {
+    //                     return context.chart.data.datasets[0].data[context.dataIndex];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+    //
+
+    new Chart(chart, {
+        type: 'horizontalBar',
+        data: {
+            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            datasets: [
+                {
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    '#B8D1F3',
+                    '#B8D1F3',
+                    '#B8D1F3',
+                    '#B8D1F3',
+                    '#B8D1F3',
+                ],
+                borderColor: [
+                    '#4e95f4',
+                    '#4e95f4',
+                    '#4e95f4',
+                    '#4e95f4',
+                    '#4e95f4'
+                ],
+                borderWidth: 1
+            },
+                {
+                    label: '# of Votes 111',
+                    data: [16, 0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        '#B8D1F3',
+                        '#B8D1F3',
+                        '#B8D1F3',
+                        '#B8D1F3',
+                        '#B8D1F3',
+                    ],
+                    borderColor: [
+                        '#4e95f4',
+                        '#4e95f4',
+                        '#4e95f4',
+                        '#4e95f4',
+                        '#4e95f4'
+                    ],
+                    borderWidth: 1
+                }
+
+
+
+
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, context) {
+                        // return context.chart.data.datasets[0].data[context.dataIndex];
+                        if(value!== 0){
+                            return context.dataset.label;
+                        }
+
+                    },
+                    display: function(context) {
+                        return context.dataset.data[context.dataIndex] !== 0; // or >= 1 or ...
+                            }
+                }
+            }
+        }
+    });
+}
+
+function generateCodeForStatisticsChart(tableData, key) {
+    let code = "";
+    code = code.concat('<div class="col-md-6">');
+    code = code.concat('<canvas id="attribute-chart-'+key+'"></canvas>')
+    code = code.concat('</div>');
+    return code;
+}
+
+function generateCodeForStatisticsTable(tableData) {
+    let code = "";
+    code = code.concat('<table class="TFtable col-md-5">');
+    code = code.concat('<tr><th>Ranking</th>');
+    code = code.concat('<th>Name</th>');
+    code = code.concat('<th>Days parsed</th>');
+    code = code.concat('<th>All rankings</th>');
+    code = code.concat('<th>Average ranking*</th></tr>');
+    let currentRank;
+    for(let i=0;i<tableData.length;i++){
+        currentRank = i+1;
+        code = code.concat('<tr><td>'+currentRank+'</td>');
+        code = code.concat(generateCodeForTableColumn(tableData, i, 'name'));
+        code = code.concat(generateCodeForTableColumn(tableData, i, 'days'));
+        code = code.concat(generateCodeForTableColumn(tableData, i, 'allRankings'));
+        code = code.concat(generateCodeForTableColumn(tableData, i, 'averageRanking'));
+        code = code.concat('</tr>');
+
+    }
+    code = code.concat('<div style="margin-bottom: 5px">Average ranking = SUM(All rankings)/days parsed</div>');
+    code = code.concat('</table>');
+    return code;
+}
+
+function generateCodeForTableColumn(tableData, i, type) {
+    let code = "";
+    code = code.concat('<td>');
+    for(let q=0;q<tableData[i].length;q++){
+        code = code.concat(tableData[i][q][type]);
+        if(q+1<tableData[i].length){
+            code = code.concat('<br>');
+        }
+    }
+    code = code.concat('</td>');
+    return code;
+}
+
+function compare(a,b) {
+    if (parseFloat(a.averageRanking) < parseFloat(b.averageRanking))
+        return -1;
+    if (parseFloat(a.averageRanking) > parseFloat(b.averageRanking))
+        return 1;
+    return 0;
+}
+
+function requestStatistics() {
+    let $jobPos = $('#dropdown-jobpositions');
+    let $jobAttributes = $('#dropdown-attributes');
+    let jobAttrVal = $jobAttributes.val();
+    let jobPosVal = $jobPos.val();
+    con_getAttributeDistributionForJob(jobAttrVal, jobPosVal ,function (response) {
+        generateStatistcsResultCode(response.result);
+    });
+}
+
+function generateDropdownInput(dropdownType) {
+    let code = "";
+    let typeString = dropdownType.type;
+    code = code.concat('<div class="dropdown-container col-md-3">');
+    code = code.concat(typeString);
+    code = code.concat('<select id="dropdown-'+typeString+'">');
+    for(let key in dropdownType.content){
+        code = code.concat('<option value="'+ key +'">'+dropdownType.content[key]+'</option>')
+    }
+    code = code.concat('</select>');
+    code = code.concat('</div>');
+    return code;
+}
+
 function toggleContainer(container) {
     let $element = $('#'+container);
     let visibility_icon = $('#visibility_icon_history');
+    if(container === 'analysis-container'){
+        visibility_icon = $('#visibility_icon_analysis');
+    }
     if ($element.css('display') === "none") {
         $element.slideDown(250);
         visibility_icon.html('visibility_off');

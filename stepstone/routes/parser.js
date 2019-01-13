@@ -126,19 +126,30 @@ router.get('/attribute/:attribute/job/:job', cors(), function (req, res, next) {
                         if(stepResult.job === job){
                             let jobAttribute = stepResult[attribute];
                             if(jobAttribute){
+                                let rank = 1;
+                                let rankAtributeCount;
+                                sortAttributes(jobAttribute.attributes);
                                 for(let y=0; y<jobAttribute.attributes.length; y++){
+                                    if(!rankAtributeCount){
+                                        rankAtributeCount = jobAttribute.attributes[y].count;
+                                    }else{
+                                        if(rankAtributeCount > jobAttribute.attributes[y].count){
+                                            rankAtributeCount = jobAttribute.attributes[y].count;
+                                            rank++;
+                                        }
+                                    }
                                     let attributeName = jobAttribute.attributes[y].name;
                                     if(stepResult.platform === 'stepstone.de'){
                                         if(resultObj.scores.stepstoneDe[attributeName]){
-                                            resultObj.scores.stepstoneDe[attributeName].push(y);
+                                            resultObj.scores.stepstoneDe[attributeName].push(rank);
                                         }else{
-                                            resultObj.scores.stepstoneDe[attributeName] = [y]
+                                            resultObj.scores.stepstoneDe[attributeName] = [rank]
                                         }
                                     }else{
                                         if(resultObj.scores.stepstoneAt[attributeName]){
-                                            resultObj.scores.stepstoneAt[attributeName].push(y);
+                                            resultObj.scores.stepstoneAt[attributeName].push(rank);
                                         }else{
-                                            resultObj.scores.stepstoneAt[attributeName] = [y]
+                                            resultObj.scores.stepstoneAt[attributeName] = [rank]
                                         }
                                     }
                                 }
@@ -304,7 +315,20 @@ function mapParsingResultToObject(root, platform, job, attributes) {
     return mappingObj;
 }
 
+function sortAttributes(attributes) {
+    let sortedAttributes = [];
 
+
+    return attributes.sort(compare);
+}
+
+function compare(a,b) {
+    if (parseInt(a.count) > parseInt(b.count))
+        return -1;
+    if (parseInt(a.count) < parseInt(b.count))
+        return 1;
+    return 0;
+}
 
 function getJobAttribute(domAttributes, attributeName) {
     let returnObj = {};

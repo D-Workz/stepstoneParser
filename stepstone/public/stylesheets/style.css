@@ -87,20 +87,35 @@ h5:after {
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
-.canvas-history{
+.canvas-history, .analysis-options{
+  margin: 10px;
   background-color: white;
   border: 1px solid black;
   padding: 20px;
 
 }
 
-.date-header:hover{
+.analysis-result{
+  padding: 20px;
+  background-color: white;
+}
+
+.res{
+  border: 1px solid black;
+  margin-bottom: 20px;
+}
+
+
+.date-Header:hover{
   cursor: pointer;
   webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 
 }
 
+.dropdown-container select{
+  margin-left: 10px;
+}
 
 .parserBoxContent{
   min-height: 200px !important;
