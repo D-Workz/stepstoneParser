@@ -192,7 +192,7 @@ function generateStatistcsResultCode(response) {
         let tableData = resp.result;
         tabData[key] = tableData;
         code = code.concat(generateCodeForStatisticsTable(tableData, resp.meta));
-        code = code.concat(generateCodeForStatisticsChart(tableData, key));
+        // code = code.concat(generateCodeForStatisticsChart(tableData, key));
         code = code.concat('</div>');
     }
     $resultBox.append(code);
@@ -337,7 +337,7 @@ function generateCodeForStatisticsChart(tableData, key) {
 
 function generateCodeForStatisticsTable(tableData, meta) {
     let code = "";
-    code = code.concat('<table class="TFtable col-md-6">');
+    code = code.concat('<table class="TFtable col-md-10 col-md-offset-1">');
     code = code.concat('<tr><th>Ranking</th>');
     code = code.concat('<th>Name</th>');
     code = code.concat('<th>Days parsed</th>');
@@ -365,7 +365,7 @@ function generateCodeForTableColumn(tableData, i, type, meta) {
     for(let q=0;q<tableData[i].length;q++){
         if(meta){
             if(meta.maxDays > tableData[i][q][type].length){
-                code = code.concat('<div style="float: left; text-align: left">'+tableData[i][q][type] + '</div><div style="color: #571213; float: left; text-align: right"> +('+ tableData[i][q]['emptyDays']+')</div>');
+                code = code.concat('<div style="float: left; text-align: left">'+tableData[i][q][type] + '</div><div style="color: #571213; float: right; text-align: right"> +('+ tableData[i][q]['emptyDays']+')</div>');
             }else{
                 code = code.concat(tableData[i][q][type]);
             }
