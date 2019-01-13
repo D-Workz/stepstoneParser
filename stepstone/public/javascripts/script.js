@@ -354,7 +354,7 @@ function generateCodeForStatisticsTable(tableData, meta) {
         code = code.concat('</tr>');
 
     }
-    code = code.concat('<div style="margin-bottom: 5px">Average ranking = SUM(All rankings)/days parsed</div>');
+    code = code.concat('<div style="margin-bottom: 5px">Average ranking = <b>SUM</b>(All rankings)/<b>MAX</b>(days parsed)</div>');
     code = code.concat('</table>');
     return code;
 }
