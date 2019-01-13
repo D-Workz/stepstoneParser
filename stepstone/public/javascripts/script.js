@@ -5,7 +5,7 @@ let viewFiles = [
 ];
 let results = {};
 let mapData = [];
-let local = true;
+let local = false;
 
 $(document).ready(function() {
     process_insertHTMLViews();
