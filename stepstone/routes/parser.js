@@ -130,11 +130,12 @@ router.get('/attribute/:attribute/job/:job', cors(), function (req, res, next) {
                                 let rankAtributeCount;
                                 sortAttributes(jobAttribute.attributes);
                                 for(let y=0; y<jobAttribute.attributes.length; y++){
+                                    let intCount = parseInt(jobAttribute.attributes[y].count);
                                     if(!rankAtributeCount){
-                                        rankAtributeCount = jobAttribute.attributes[y].count;
+                                        rankAtributeCount = intCount;
                                     }else{
-                                        if(rankAtributeCount > jobAttribute.attributes[y].count){
-                                            rankAtributeCount = jobAttribute.attributes[y].count;
+                                        if(rankAtributeCount > intCount){
+                                            rankAtributeCount = intCount;
                                             rank++;
                                         }
                                     }

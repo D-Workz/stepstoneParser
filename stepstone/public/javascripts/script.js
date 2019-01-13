@@ -283,7 +283,7 @@ function generateStatisticChart(chart, data) {
 
 function generateCodeForStatisticsChart(tableData, key) {
     let code = "";
-    code = code.concat('<div class="col-md-6">');
+    code = code.concat('<div class="col-md-5">');
     code = code.concat('<canvas id="attribute-chart-'+key+'"></canvas>')
     code = code.concat('</div>');
     return code;
@@ -291,7 +291,7 @@ function generateCodeForStatisticsChart(tableData, key) {
 
 function generateCodeForStatisticsTable(tableData) {
     let code = "";
-    code = code.concat('<table class="TFtable col-md-5">');
+    code = code.concat('<table class="TFtable col-md-6">');
     code = code.concat('<tr><th>Ranking</th>');
     code = code.concat('<th>Name</th>');
     code = code.concat('<th>Days parsed</th>');
