@@ -5,7 +5,7 @@ let viewFiles = [
 ];
 let results = {};
 let mapData = [];
-let local = false;
+let local = true;
 
 $(document).ready(function() {
     process_insertHTMLViews();
@@ -83,31 +83,70 @@ function appendAttributeAnalysis() {
     $element.append(code);
 }
 
+function getMaxDays(attributeDistribution) {
+    let maxDays = 0;
+    for(let key in attributeDistribution){
+        if(attributeDistribution[key].length>maxDays){
+            maxDays = attributeDistribution[key].length;
+        }
+    }
+    return maxDays;
+}
+
+function getMaxDailyRating(attributeDistribution) {
+    let maxRating = 0;
+    for(let key in attributeDistribution){
+        for(let i=0;i<attributeDistribution[key].length;i++){
+            if(attributeDistribution[key][i]>maxRating){
+                maxRating = attributeDistribution[key][i];
+            }
+        }
+    }
+    return maxRating+1;
+}
+
 function generateTableData(attributeDistribution) {
     let tableData = [];
+    let maxDailyRating = getMaxDailyRating(attributeDistribution);
+    let maxDays = getMaxDays(attributeDistribution);
     for(let key in attributeDistribution){
         let sum = 0;
-        for(let i=0;i<attributeDistribution[key].length;i++){
-            sum = sum + attributeDistribution[key][i];
-        }
-        tableData.push({
+
+        let dataObj = {
             name:key,
             days:attributeDistribution[key].length,
             allRankings:attributeDistribution[key],
-            averageRanking: (sum / attributeDistribution[key].length).toFixed(2)
-        })
+            averageRanking: 0,
+            emptyDays : []
+        };
+        if(attributeDistribution[key].length < maxDays){
+            let difference = maxDays - attributeDistribution[key].length;
+            for(let h=0;h<difference;h++){
+                dataObj.emptyDays.push(maxDailyRating);
+            }
+        }
+        for(let i=0;i<attributeDistribution[key].length;i++){
+            sum = sum + attributeDistribution[key][i];
+        }
+        for(let k=0;k<dataObj.emptyDays.length;k++){
+            sum = sum + dataObj.emptyDays[k];
+        }
+        dataObj.averageRanking = parseFloat(sum / maxDays).toFixed(2);
+        tableData.push(dataObj)
     }
     tableData.sort(compare);
     let rank = 1;
     let currentAvgRank;
+    let avgFloat;
     for(let q=0;q<tableData.length;q++){
+        avgFloat = parseFloat(tableData[q].averageRanking);
         if(!currentAvgRank){
-            currentAvgRank = tableData[q].averageRanking;
+            currentAvgRank = avgFloat;
             tableData[q].rank = rank;
         }else {
-            if(currentAvgRank < tableData[q].averageRanking){
+            if(currentAvgRank < avgFloat){
                 rank++;
-                currentAvgRank = tableData[q].averageRanking;
+                currentAvgRank = avgFloat;
             }
             tableData[q].rank = rank;
         }
@@ -129,7 +168,13 @@ function generateTableData(attributeDistribution) {
             }
         }
     }
-    return rankedData;
+    return {
+        result:rankedData,
+        meta:{
+            maxDays:maxDays,
+            maxDailyRating:maxDailyRating
+        }
+    };
 }
 
 function generateStatistcsResultCode(response) {
@@ -143,9 +188,10 @@ function generateStatistcsResultCode(response) {
     for(let key in response.scores){
         code = code.concat('<div class="res col-md-12">');
         code = code.concat('<h5>'+key+'</h5>');
-        let tableData = generateTableData(response.scores[key]);
+        let resp = generateTableData(response.scores[key]);
+        let tableData = resp.result;
         tabData[key] = tableData;
-        code = code.concat(generateCodeForStatisticsTable(tableData));
+        code = code.concat(generateCodeForStatisticsTable(tableData, resp.meta));
         code = code.concat(generateCodeForStatisticsChart(tableData, key));
         code = code.concat('</div>');
     }
@@ -289,7 +335,7 @@ function generateCodeForStatisticsChart(tableData, key) {
     return code;
 }
 
-function generateCodeForStatisticsTable(tableData) {
+function generateCodeForStatisticsTable(tableData, meta) {
     let code = "";
     code = code.concat('<table class="TFtable col-md-6">');
     code = code.concat('<tr><th>Ranking</th>');
@@ -303,7 +349,7 @@ function generateCodeForStatisticsTable(tableData) {
         code = code.concat('<tr><td>'+currentRank+'</td>');
         code = code.concat(generateCodeForTableColumn(tableData, i, 'name'));
         code = code.concat(generateCodeForTableColumn(tableData, i, 'days'));
-        code = code.concat(generateCodeForTableColumn(tableData, i, 'allRankings'));
+        code = code.concat(generateCodeForTableColumn(tableData, i, 'allRankings', meta));
         code = code.concat(generateCodeForTableColumn(tableData, i, 'averageRanking'));
         code = code.concat('</tr>');
 
@@ -313,11 +359,19 @@ function generateCodeForStatisticsTable(tableData) {
     return code;
 }
 
-function generateCodeForTableColumn(tableData, i, type) {
+function generateCodeForTableColumn(tableData, i, type, meta) {
     let code = "";
     code = code.concat('<td>');
     for(let q=0;q<tableData[i].length;q++){
-        code = code.concat(tableData[i][q][type]);
+        if(meta){
+            if(meta.maxDays > tableData[i][q][type].length){
+                code = code.concat('<div style="float: left; text-align: left">'+tableData[i][q][type] + '</div><div style="color: #571213; float: left; text-align: right"> +('+ tableData[i][q]['emptyDays']+')</div>');
+            }else{
+                code = code.concat(tableData[i][q][type]);
+            }
+        }else {
+            code = code.concat(tableData[i][q][type]);
+        }
         if(q+1<tableData[i].length){
             code = code.concat('<br>');
         }
